@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quiet Hours</title>
+<style>
+:root{--bg:#f4efe8;--card:#fffaf2;--ink:#2b2a33;--mute:#6d6a78;--acc:#b9772f;--line:#e4dccf;--glow:#f0c987;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1022;--card:#171a33;--ink:#e9e6f2;--mute:#9a97b3;--acc:#f0c987;--line:#262a4d;--glow:#f0c987}}
+:root[data-theme="dark"]{--bg:#0e1022;--card:#171a33;--ink:#e9e6f2;--mute:#9a97b3;--acc:#f0c987;--line:#262a4d;--glow:#f0c987}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 Georgia,"Times New Roman",serif;-webkit-font-smoothing:antialiased}
+main{max-width:560px;margin:0 auto;padding:28px 18px 60px}
+h1{font-weight:400;font-size:2rem;margin:.2em 0 .1em;letter-spacing:.01em}
+h2{font-weight:400;font-size:1.2rem;margin:0 0 .3em;color:var(--acc)}
+p{margin:.4em 0}
+.sub,.small{color:var(--mute);font-size:.92rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin:16px 0}
+button{font:inherit;cursor:pointer;border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:999px;padding:8px 18px;min-height:44px}
+@media (hover:hover){button:hover{background:var(--acc);color:var(--bg)}}
+.chips button:not(.on){background:transparent;color:var(--acc)}
+textarea,input[type=text]{width:100%;font:inherit;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px;margin:6px 0}
+textarea{min-height:70px;resize:vertical}
+.breath{display:flex;flex-direction:column;align-items:center;padding:10px 0}
+.orb{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 70%);opacity:.85;transform:scale(.6);transition:transform 4s ease-in-out}
+.orb.in{transform:scale(1.15)}
+.orb.out{transform:scale(.6);transition-duration:6s}
+.cue{height:1.6em;margin:.4em 0}
+label.chk{display:flex;gap:12px;align-items:center;padding:8px 0;min-height:44px}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--acc)}
+ul{list-style:none;padding:0;margin:8px 0 0}
+li{padding:8px 0;border-top:1px solid var(--line);font-size:.97rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.quote{font-style:italic;font-size:1.1rem}
+footer{text-align:center;margin-top:30px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chips button.on{background:var(--acc);color:var(--bg)}
+.moods button{font-size:1.5rem;padding:4px 12px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.fade{transition:opacity 2.5s;opacity:0}
+select{font:inherit;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px}
+</style>
+</head>
+<body>
+<main>
+  <p class="sub" id="clock"></p>
+  <h1 id="hello">Hello, you.</h1>
+  <p class="sub">A small, quiet place to put the day down. Nothing here asks for anything from you, and nothing leaves your device.</p>
+
+  <div class="card">
+    <h2>Tonight’s thought</h2>
+    <p class="quote" id="thought"></p>
+    <p class="small">A new one each day.</p>
+  </div>
+
+  <div class="card">
+    <h2>Breathe for a minute</h2>
+    <div class="breath"><div class="orb" id="orb"></div><div class="cue" id="cue">Tap start, then follow the glow.</div>
+    <button id="bstart">Start</button></div>
+    <p class="small">Slow breathing, with a longer breath out, shifts the body toward its rest state.</p>
+  </div>
+
+  <div class="card">
+    <h2>Set the worries down</h2>
+    <p class="small">Sleep researchers suggest writing each worry with one small next step for tomorrow, then leaving it there rather than solving it tonight.</p>
+    <input type="text" id="w1" placeholder="What’s on your mind?">
+    <input type="text" id="w2" placeholder="One small step for tomorrow">
+    <div class="row"><button id="wadd">Put it away</button></div>
+    <ul id="wlist"></ul>
+  </div>
+
+  <div class="card">
+    <h2>One good thing</h2>
+    <textarea id="g" placeholder="Something small that went okay today…"></textarea>
+    <div class="row"><button id="gadd">Keep it</button></div>
+    <ul id="glist"></ul>
+  </div>
+
+  <div class="card">
+    <h2>Wind-down checklist</h2>
+    <div id="checks"></div>
+    <p class="small">It resets each day. No streaks, no guilt.</p>
+  </div>
+
+  <div class="card">
+    <h2>Sound mixer</h2>
+    <p class="small">Tap one or mix several.</p>
+    <div class="chips" id="chips"></div>
+    <label class="small">Volume<input type="range" id="vol" min="0" max="100" value="50"></label>
+    <div class="row"><select id="tmr"><option value="0">No sleep timer</option><option value="15">Fade out in 15 min</option><option value="30">Fade out in 30 min</option><option value="60">Fade out in 60 min</option></select><button id="theme">Dim / bright</button></div>
+  </div>
+
+  <div class="card">
+    <h2>How are you, really?</h2>
+    <div class="chips moods" id="moods"></div>
+    <p class="small" id="mreply">Pick whatever fits. There’s no wrong answer.</p>
+    <p class="small" id="mhist"></p>
+  </div>
+
+  <div class="card">
+    <h2>Let it go</h2>
+    <p class="small">Type something heavy, then watch it fade. Nothing is saved.</p>
+    <textarea id="rel" placeholder="Say it here…"></textarea>
+    <div class="row"><button id="relb">Release</button></div>
+  </div>
+
+  <div class="card">
+    <h2>Grounding: 5-4-3-2-1</h2>
+    <p id="gr">When your mind is racing, this brings you back to the room.</p>
+    <div class="row"><button id="grb">Begin</button></div>
+  </div>
+
+  <div class="card">
+    <h2>The sky tonight</h2>
+    <p id="moon"></p>
+  </div>
+
+  <div class="card">
+    <h2>Your privacy</h2>
+    <p class="small">Everything you write stays only in this browser. No one can see it, including whoever made this page.</p>
+    <div class="row"><button id="wipe">Erase everything I wrote</button></div>
+  </div>
+
+  <div class="card">
+    <h2>A note, if you want it</h2>
+    <p id="note">Someone from class thinks of you kindly and wanted you to have a calm night. There is nothing to reply to.</p>
+    <p class="small">The note is outdated now.</p>
+  </div>
+
+  <footer class="small">Sleep well. Come back whenever you like. 🌙</footer>
+</main>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+function ls(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var h=new Date().getHours();
+$('hello').textContent=h>=21||h<4?'Good night, you.':h<12?'Good morning, you.':h<18?'Good afternoon, you.':'Good evening, you.';
+$('clock').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+var T=['You don’t have to finish today to deserve rest.','Dim the lights. Let the day be done.','A cool room and a quiet mind: that’s plenty for tonight.','Tomorrow can carry what you set down now.','Be as gentle with yourself as you are with people you like.','Small kindnesses count, even the ones nobody sees.','Breathing out slowly is the easiest way to tell your body it’s safe.','Rest is part of the work.'];
+var d=Math.floor(Date.now()/864e5);$('thought').textContent=T[d%T.length];
+var orb=$('orb'),cue=$('cue'),run=false,tm=[];
+function cyc(n){if(!run||n>=6){run=false;orb.className='orb';cue.textContent='Well done. Notice how you feel.';$('bstart').textContent='Start';return}
+cue.textContent='Breathe in…';orb.className='orb in';
+tm.push(setTimeout(function(){if(!run)return;cue.textContent='Hold…';
+tm.push(setTimeout(function(){if(!run)return;cue.textContent='Slowly out…';orb.className='orb out';
+tm.push(setTimeout(function(){cyc(n+1)},6000))},1500))},4000))}
+$('bstart').onclick=function(){if(run){run=false;tm.forEach(clearTimeout);orb.className='orb';cue.textContent='Paused.';this.textContent='Start';return}
+run=true;this.textContent='Stop';cyc(0)};
+function esc(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function drawW(){var a=ls('w',[]);$('wlist').innerHTML=a.slice(-5).reverse().map(function(x){return'<li>'+esc(x[0])+(x[1]?'<br><span class="small">Tomorrow: '+esc(x[1])+'</span>':'')+'</li>'}).join('')}
+$('wadd').onclick=function(){var a=$('w1').value.trim();if(!a)return;var w=ls('w',[]);w.push([a,$('w2').value.trim()]);sv('w',w);$('w1').value='';$('w2').value='';drawW()};
+function drawG(){var a=ls('g',[]);$('glist').innerHTML=a.slice(-5).reverse().map(function(x){return'<li>'+esc(x)+'</li>'}).join('')}
+$('gadd').onclick=function(){var a=$('g').value.trim();if(!a)return;var g=ls('g',[]);g.push(a);sv('g',g);$('g').value='';drawG()};
+var C=['Dim the lights','Cool the room a little','Warm shower or a caffeine-free tea','A few slow stretches','Put the phone down for something calm, like a book'];
+var today=new Date().toDateString(),st=ls('c',{});if(st.d!==today)st={d:today,v:[]};
+$('checks').innerHTML=C.map(function(t,i){return'<label class="chk"><input type="checkbox" data-i="'+i+'"'+(st.v.indexOf(i)>-1?' checked':'')+'> '+t+'</label>'}).join('');
+$('checks').onchange=function(e){var i=+e.target.dataset.i,p=st.v.indexOf(i);if(e.target.checked&&p<0)st.v.push(i);if(!e.target.checked&&p>-1)st.v.splice(p,1);sv('c',st)};
+var ctx,master,wb,bb,act={},tt;
+function init(){if(ctx)return;ctx=new (window.AudioContext||window.webkitAudioContext)();master=ctx.createGain();master.gain.value=$('vol').value/100*.8;master.connect(ctx.destination);
+var n=ctx.sampleRate*3,l=0;wb=ctx.createBuffer(1,n,ctx.sampleRate);bb=ctx.createBuffer(1,n,ctx.sampleRate);
+var a=wb.getChannelData(0),b=bb.getChannelData(0);for(var i=0;i<n;i++){var w=Math.random()*2-1;a[i]=w;l=(l+.02*w)/1.02;b[i]=l*3.5}}
+function ns(buf){var s=ctx.createBufferSource();s.buffer=buf;s.loop=true;s.start();return s}
+function filt(t,f,q){var x=ctx.createBiquadFilter();x.type=t;x.frequency.value=f;if(q)x.Q.value=q;return x}
+function lfo(rate,depth,param){var o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=rate;g.gain.value=depth;o.connect(g);g.connect(param);o.start();return o}
+var S={
+rain:function(){var s=ns(wb),f=filt('bandpass',3500,.4),g=ctx.createGain();g.gain.value=.5;s.connect(f);f.connect(g);g.connect(master);return[s,g]},
+ocean:function(){var s=ns(bb),g=ctx.createGain();g.gain.value=.5;var o=lfo(.09,.4,g.gain);s.connect(g);g.connect(master);return[s,o,g]},
+wind:function(){var s=ns(wb),f=filt('bandpass',500,2),g=ctx.createGain();g.gain.value=.25;var o=lfo(.12,300,f.frequency);s.connect(f);f.connect(g);g.connect(master);return[s,o,g]},
+fire:function(){var s=ns(bb),g=ctx.createGain();g.gain.value=.25;s.connect(g);g.connect(master);
+var iv=setInterval(function(){var c=ctx.createBufferSource();c.buffer=wb;var h=filt('highpass',1800),e=ctx.createGain();var t=ctx.currentTime;e.gain.setValueAtTime(.35*Math.random(),t);e.gain.exponentialRampToValueAtTime(.001,t+.05);c.connect(h);h.connect(e);e.connect(master);c.start(t,Math.random(),.06)},180);return[s,g,{stop:function(){clearInterval(iv)}}]},
+crickets:function(){var o=ctx.createOscillator();o.frequency.value=4300;var g=ctx.createGain();g.gain.value=0;var m=ctx.createOscillator();m.frequency.value=7;var mg=ctx.createGain();mg.gain.value=.012;m.connect(mg);mg.connect(g.gain);var gate=ctx.createGain();gate.gain.value=1;lfo(.4,.5,gate.gain);o.connect(g);g.connect(gate);gate.connect(master);o.start();m.start();return[o,m]},
+lullaby:function(){var g=ctx.createGain();g.gain.value=.07;var f=filt('lowpass',900);f.connect(g);g.connect(master);var os=[110,164.81,220,261.63,329.63].map(function(fr,i){var o=ctx.createOscillator();o.type='sine';o.frequency.value=fr;var og=ctx.createGain();og.gain.value=.5;lfo(.05+i*.02,.4,og.gain);o.connect(og);og.connect(f);o.start();return o});return os.concat([g])}
+};
+function env(o,t,pk,at,dc){var e=ctx.createGain();e.gain.setValueAtTime(.0001,t);e.gain.linearRampToValueAtTime(pk,t+at);e.gain.exponentialRampToValueAtTime(.0001,t+at+dc);o.connect(e);e.connect(master);o.start(t);o.stop(t+at+dc+.1)}
+function loopFn(ms,fn){var iv=setInterval(fn,ms);return{stop:function(){clearInterval(iv)}}}
+S.rain=function(){var s=ns(wb),h=filt('highpass',1200),l=filt('lowpass',8000),g=ctx.createGain();g.gain.value=.4;s.connect(h);h.connect(l);l.connect(g);g.connect(master);
+var d=loopFn(60,function(){var o=ctx.createOscillator();o.frequency.value=1800+Math.random()*3500;env(o,ctx.currentTime,.03*Math.random(),.002,.03)});return[s,g,d]};
+S.ocean=function(){var s=ns(bb),f=filt('lowpass',450),g=ctx.createGain();g.gain.value=.55;var o=lfo(.1,.45,g.gain);s.connect(f);f.connect(g);g.connect(master);
+var s2=ns(wb),hp=filt('highpass',3000),g2=ctx.createGain();g2.gain.value=.07;var o2=lfo(.1,.06,g2.gain);s2.connect(hp);hp.connect(g2);g2.connect(master);return[s,o,s2,o2]};
+S.wind=function(){var s=ns(wb),f=filt('bandpass',650,9),g=ctx.createGain();g.gain.value=1.6;var a=lfo(.07,380,f.frequency),b=lfo(.19,140,f.frequency);s.connect(f);f.connect(g);g.connect(master);return[s,a,b]};
+S.fire=function(){var s=ns(bb),f=filt('lowpass',260),g=ctx.createGain();g.gain.value=.6;s.connect(f);f.connect(g);g.connect(master);
+var c=loopFn(70,function(){if(Math.random()>.4)return;var b=ctx.createBufferSource();b.buffer=wb;var h=filt('bandpass',1200+Math.random()*4000,1.5),e=ctx.createGain(),t=ctx.currentTime,p=Math.random()>.9?.9:.35*Math.random();e.gain.setValueAtTime(p,t);e.gain.exponentialRampToValueAtTime(.0001,t+.02+Math.random()*.05);b.connect(h);h.connect(e);e.connect(master);b.start(t,Math.random()*2,.1)});return[s,c]};
+S.crickets=function(){function chirp(fr){var t=ctx.currentTime;for(var i=0;i<3;i++){var o=ctx.createOscillator();o.frequency.value=fr;env(o,t+i*.07,.025,.01,.04)}}
+return[loopFn(700,function(){chirp(4300)}),loopFn(930,function(){chirp(4900)}),loopFn(1300,function(){chirp(3900)})]};
+S.lullaby=function(){var C=[[110,164.81,196,261.63],[87.31,130.81,174.61,220],[130.81,196,261.63,329.63],[98,146.83,196,246.94]],ci=0,P5=[440,523.25,587.33,659.25,783.99,880],on=true,tm;
+function chord(){var t=ctx.currentTime,l=filt('lowpass',800);l.connect(master);C[ci++%4].forEach(function(fr){var o=ctx.createOscillator();o.type='triangle';o.frequency.value=fr;var e=ctx.createGain();e.gain.setValueAtTime(.0001,t);e.gain.linearRampToValueAtTime(.05,t+3);e.gain.linearRampToValueAtTime(.0001,t+8);o.connect(e);e.connect(l);o.start(t);o.stop(t+8.2)})}
+function note(){if(!on)return;var o=ctx.createOscillator();o.frequency.value=P5[Math.floor(Math.random()*6)];env(o,ctx.currentTime,.06,.01,2.2);tm=setTimeout(note,2200+Math.random()*2500)}
+chord();note();var iv=setInterval(chord,7000);return[{stop:function(){on=false;clearTimeout(tm);clearInterval(iv)}}]};
+var N={rain:'🌧️ Rain',ocean:'🌊 Ocean',wind:'🍃 Wind',fire:'🔥 Fireplace',crickets:'🦗 Night crickets',lullaby:'🎶 Soft pad music'};
+$('chips').innerHTML=Object.keys(N).map(function(k){return'<button data-k="'+k+'">'+N[k]+'</button>'}).join('');
+function stopAll(){Object.keys(act).forEach(function(k){act[k].forEach(function(x){try{x.stop()}catch(e){}});delete act[k]});[].forEach.call($('chips').children,function(b){b.className=''})}
+$('chips').onclick=function(e){var k=e.target.dataset.k;if(!k)return;try{init();if(ctx.state==='suspended')ctx.resume();
+if(act[k]){act[k].forEach(function(x){try{x.stop()}catch(e){}});delete act[k];e.target.className=''}else{act[k]=S[k]();e.target.className='on'}e.target.blur()}catch(x){}};
+$('vol').oninput=function(){if(master)master.gain.value=this.value/100*.8};
+$('tmr').onchange=function(){clearTimeout(tt);var m=+this.value;if(!m)return;tt=setTimeout(function(){if(!master)return;master.gain.linearRampToValueAtTime(0,ctx.currentTime+20);setTimeout(function(){stopAll();master.gain.value=$('vol').value/100*.8},21000)},m*60000)};
+var M=['😊','🙂','😐','😔','😢'],MR=['Glad to hear it. Enjoy that.','Nice and steady.','A neutral day is allowed.','Tough days pass. You got through this one.','That sounds heavy. Be soft with yourself tonight.'];
+$('moods').innerHTML=M.map(function(m,i){return'<button data-i="'+i+'">'+m+'</button>'}).join('');
+function drawM(){var a=ls('m',[]).slice(-7);$('mhist').textContent=a.length?'Recent: '+a.map(function(x){return M[x[1]]}).join(' '):''}
+$('moods').onclick=function(e){var i=e.target.dataset.i;if(i==null)return;var a=ls('m',[]);a.push([today,+i]);sv('m',a);$('mreply').textContent=MR[i];drawM()};
+$('relb').onclick=function(){var t=$('rel');if(!t.value)return;t.className='fade';setTimeout(function(){t.value='';t.className=''},2600)};
+var G=['Name 5 things you can see.','Name 4 things you can feel.','Name 3 things you can hear.','Name 2 things you can smell.','Name 1 thing you can taste. Now breathe out slowly. You’re here.'],gi=0;
+$('grb').onclick=function(){$('gr').textContent=G[gi];gi++;this.textContent='Next';if(gi>=G.length){gi=0;this.textContent='Again'}};
+var ph=((Date.now()-947182440000)/864e5/29.530588853)%1,P=['🌑 New moon','🌒 Waxing crescent','🌓 First quarter','🌔 Waxing gibbous','🌕 Full moon','🌖 Waning gibbous','🌗 Last quarter','🌘 Waning crescent'];
+$('moon').textContent='Tonight: '+P[Math.floor(ph*8+.5)%8]+'. Wherever you are, it’s the same moon.';
+$('wipe').onclick=function(){['w','g','c','m'].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}});drawW();drawG();drawM();this.textContent='Erased'};
+drawM();
+var dark=false;$('theme').onclick=function(){dark=!dark;document.documentElement.setAttribute('data-theme',dark?'dark':'light')};
+drawW();drawG();
+})();
+</script>
+</body>
+</html>
